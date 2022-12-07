@@ -9,8 +9,7 @@ public class Jump : MonoBehaviour
     private Collider m_Collider;
     //parametres
     private float distToGround;
-    [Range(100,1000)]
-    public float jumpForce;
+    public float jumpForce = 400;
 
 
 
@@ -27,16 +26,25 @@ public class Jump : MonoBehaviour
     //Fonction pour savoir si l'on touche le sol
     bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, -Vector3.up, distToGround);
+        return Physics.Raycast(transform.position, -Gyroscope.transform.up, distToGround);
     }
 
+    private bool enSaut = false;
+    IEnumerator Wait(float seconds)
+    {
+        m_playerRig.AddForce(Gyroscope.transform.up * jumpForce);
+        yield return new WaitForSeconds(seconds);
+        enSaut = false;
+    }
+    
     // Update is called once per frame
     void Update()
     {
         // Saut
-        if (Input.touchCount == 1 && IsGrounded())
+        if (Input.touchCount == 1 && IsGrounded() && !enSaut)
         {
-            m_playerRig.AddForce(Gyroscope.transform.up * jumpForce);
+            enSaut = true;
+            StartCoroutine(Wait(1));
         }
     }
 }
